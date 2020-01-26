@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prepareData();
-
+       //Getting JsonPlaceHolderApi reference
         jsonPlaceHolderApi = ApiConfig.getRetrofit().create(JsonPlaceHolderApi.class);
         textViewResult = findViewById(R.id.tv_data);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    //Types or request
+    //Number of buttons loading
     private void prepareData() {
         nameList = new ArrayList<>();
         nameList.add("Simple Get request");
@@ -63,8 +65,13 @@ public class MainActivity extends AppCompatActivity {
         nameList.add("Simple Post Request");
         nameList.add("Post Request with FormUrlEncoded");
         nameList.add("Post Request with Map Data");
+        nameList.add("Simple Put Request");
+        nameList.add("Simple Patch Request");
+        nameList.add("Simple Delete Request");
     }
 
+    //Validation after button clicked
+    //Validation for which methods needs to be called after button clicked
     private void makeApiRequest(int position) {
 
         Log.d(TAG, "makeApiRequest: " + position);
@@ -85,9 +92,20 @@ public class MainActivity extends AppCompatActivity {
             case 10:
                 postRequest(position);
                 break;
+            case 11:
+                putRequest();
+                break;
+            case 12:
+                patchRequest();
+                break;
+
+            case 13:
+                deleteRequest();
+                break;
         }
     }
 
+    //All kind of GET request
     private void getRequest(int i) {
         Call<List<PostModel>> call = null;
         switch (i) {
@@ -167,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //Various POST request
     private void postRequest(int position) {
 
         Call<PostModel> call = null;
@@ -224,4 +243,94 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Simple PUT request
+    private void putRequest() {
+
+        PostModel data = new PostModel(5, "New Title ", "Put request successful");
+
+        Call<PostModel> call = jsonPlaceHolderApi.simplePutRequest(1, data);
+
+        call.enqueue(new Callback<PostModel>() {
+            @Override
+            public void onResponse(@NonNull Call<PostModel> call, @NonNull Response<PostModel> response) {
+
+                if (!response.isSuccessful()) {
+                    textViewResult.setText(("Code : " + response.code()));
+                    return;
+                }
+                PostModel postData = response.body();
+
+                if (postData != null) {
+
+                    String content = "";
+                    content += "Code : " + response.code() + "\n";
+                    content += "ID : " + postData.getId() + "\n";
+                    content += "User id : " + postData.getUserId() + "\n";
+                    content += "Title : " + postData.getTitle() + "\n";
+                    content += "Body : " + postData.getTextData() + "\n";
+
+                    textViewResult.setText(content);
+                }
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PostModel> call, @NonNull Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    //Simple Patch Request
+    private void patchRequest() {
+        PostModel data = new PostModel(5, "New Title With Patch request ", null);
+
+        Call<PostModel> call = jsonPlaceHolderApi.simplePatchRequest(1, data);
+        call.enqueue(new Callback<PostModel>() {
+            @Override
+            public void onResponse(@NonNull Call<PostModel> call, @NonNull Response<PostModel> response) {
+
+                if (!response.isSuccessful()) {
+                    textViewResult.setText(("Code : " + response.code()));
+                    return;
+                }
+                PostModel postData = response.body();
+                if (postData == null)
+                    return;
+                String content = "";
+                content += "Code : " + response.code() + "\n";
+                content += "ID : " + postData.getId() + "\n";
+                content += "User id : " + postData.getUserId() + "\n";
+                content += "Title : " + postData.getTitle() + "\n";
+                content += "Body : " + postData.getTextData() + "\n";
+
+                textViewResult.setText(content);
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PostModel> call, @NonNull Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    //Simple delete request
+    private void deleteRequest() {
+        Call<Void> deleteRequest = jsonPlaceHolderApi.simpleDeleteRequest(5);
+
+        deleteRequest.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+
+                textViewResult.setText(("Code: " + response.code() + " is success " + response.isSuccessful()));
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
 }
