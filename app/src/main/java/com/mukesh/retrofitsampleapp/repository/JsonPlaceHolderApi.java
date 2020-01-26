@@ -8,11 +8,17 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.HeaderMap;
+import retrofit2.http.Headers;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
@@ -110,5 +116,38 @@ public interface JsonPlaceHolderApi {
      * PUT and PATCH both send a @Body annotated request body, which the GSON converter serializes into the JSON format.
      */
 
+    @PUT("posts/{id}")
+    Call<PostModel> simplePutRequest(@Path("id") int id, @Body PostModel data);
 
+    @PATCH("posts/{id}")
+    Call<PostModel> simplePatchRequest(@Path("id") int id, @Body PostModel data);
+
+
+    @DELETE("posts/{id}")
+    Call<Void> simpleDeleteRequest(@Path("id") int id);
+
+
+
+    //HOW TO ADD HEADERS
+
+    /**
+     * HTTP headers contain the metadata for each request and response, like the content-type of the body,
+     * the expiration date, or an authentication token.
+     * We can add headers with Retrofit to HTTP methods either statically, by adding the @Headers annotation and
+     * defining the headers hardcoded as strings, or dynamically, by passing @Header or @HeaderMap annotated arguments.
+     * Alternatively, we can add headers to all methods at once using an OkHttp Interceptor.
+     */
+    /*If we want to add mutiple headers we can use {}.
+     *@Annotated headers are static ,you cant change (Hard coded headers)
+     * */
+
+    //@Headers("static-header1: 123")
+    @Headers({"static-header1: 123", "static-header1: 456"})
+    @PUT("posts/{id}")
+    Call<PostModel> simplePutRequestWithHeaders
+    (@Header("dynamic-header")
+             String dynamic_header, @Path("id") int id, @Body PostModel data);
+
+    @PUT("posts/{id}")
+    Call<PostModel> simplePutRequestWithHeaders(@HeaderMap Map<String, String> dynamic_header, @Path("id") int id, @Body PostModel data);
 }
